@@ -9,3 +9,13 @@ Content-Type: application/json
       "name": "Dan Abramov II",
       "number": "1202-123912"
 }
+
+###
+
+POST https://phonebook-67zg.onrender.com/api/persons
+Content-Type: application/json
+
+{
+      "name": "Dan Abramov II",
+      "number": "1202-123912"
+}
