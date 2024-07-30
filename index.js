@@ -1,7 +1,11 @@
 const express = require('express')
+require('dotenv').config()
+
+const Person = require('./models/person')
 const app = express()
 const cors = require('cors')
 var morgan = require('morgan')
+
 
 morgan.token('content', function getContent(req){
     return JSON.stringify(req.body)
@@ -12,6 +16,8 @@ app.use(express.static('dist'))
 app.use(cors())
 app.use(express.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time :content'))
+
+
 
 let persons = [
     { 
@@ -48,7 +54,10 @@ app.get('/info', (request, response) => {
 })
 
 app.get('/api/persons', (request, response) => {
-  response.json(persons)
+  // response.json(persons)
+  Person.find({}).then(person=>{
+    response.json(person)
+  })
 })
 
 
@@ -67,45 +76,51 @@ app.get('/api/persons/:id', (request,response)=>{
 
 app.delete('/api/persons/:id', (request,response)=>{
 
-    const person = persons.find(person => person.id === request.params.id)
+Person.findById(request.params.id).then(person=>{
+  if(person){
 
-    if(person){
-        persons = persons.filter(person=> person.id != request.params.id)
-        response.status(204).end()
-    }
-    else{
-        response.status(404).end()
-    }
+    response.json(person)
+  }
+  else{
+    response.status(404).end()
+  }
+})
+.catch(error=>{
+  console.log(error)
+  response.status(400).send({error:'malformed id'})
+})
 
 })
 
 
 app.post('/api/persons', (request,response)=>{
 
+   const body = request.body
 
-   const person = request.body
 
-
-   if(!person.name || !person.number){
+   if(!body.name || !body.number){
     console.log('Request must have a name and a number')
     response.status(400).json({
         error:"name and number missing"
     })
    }
    
-   if(persons.find(Operson=> Operson.name === person.name)){
+   if(persons.find(Operson=> Operson.name === body.name)){
     return response.status(500).json({
         error: "Name already exists in Phonebook"
     })
    }
 
+   const person = new Person({
+    name: body.name,
+    number: body.number,
+   })
+    
 
-       person.id =Math.floor(Math.random()*1000)
+   person.save().then(savedPerson=>{
+    response.json(savedPerson)
+   })
     
-       console.log(person)
-    
-       persons = persons.concat(person)
-       response.json(person)
 }
 )
 
