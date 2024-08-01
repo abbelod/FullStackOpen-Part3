@@ -58,9 +58,14 @@ app.get('/info', (request, response) => {
 
     console.log(request.headers)
     let date = new Date(); 
-    const toSend = `<p>Phonebook has info for ${persons.length} people </p>
-    <p>${date} </p>`
-  response.send(toSend)
+    let countPerson
+    Person.countDocuments({}).then(countPerson=>{
+      console.log('here', countPerson)
+      const toSend = `<p>Phonebook has info for ${countPerson} people </p>
+      <p>${date} </p>`
+    response.send(toSend)
+    })
+    
 })
 
 app.get('/api/persons', (request, response) => {
