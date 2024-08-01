@@ -73,15 +73,12 @@ app.get('/api/persons', (request, response) => {
 
 app.get('/api/persons/:id', (request,response)=>{
 
-    const person = (persons.find(person=> person.id === request.params.id))
-
+  Person.findById(request.params.id)
+  .then(person=>{
     console.log(person)
-    if(person){
-        response.json(person)
-    }
-    else{
-        response.status(404).end()
-    }
+    response.json(person)
+  })
+
 })
 
 app.delete('/api/persons/:id', (request,response)=>{
@@ -105,23 +102,21 @@ app.post('/api/persons', (request,response)=>{
     response.status(400).json({
         error:"name and number missing"
     })
+
+   }
+   else{
+     
+     const person = new Person({
+      name: body.name,
+      number: body.number,
+     })
+      
+  
+     person.save().then(savedPerson=>{
+      response.json(savedPerson)
+     })
    }
    
-   if(persons.find(Operson=> Operson.name === body.name)){
-    return response.status(500).json({
-        error: "Name already exists in Phonebook"
-    })
-   }
-
-   const person = new Person({
-    name: body.name,
-    number: body.number,
-   })
-    
-
-   person.save().then(savedPerson=>{
-    response.json(savedPerson)
-   })
     
 }
 )
